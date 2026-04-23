@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: YOUR_USERNAME/YOUR_REPO # Replace with your actual username/repo name (e.g., mahfuz863/my-portfolio)
+  repo: https://mahfuj863.github.io/MAHFUJ-ALOM/ 
   branch: main
 
 media_folder: "images"
