@@ -1,0 +1,32 @@
+backend:
+  name: git-gateway
+  branch: main # Change this to your main branch name
+
+media_folder: "assets/img/blog"
+public_folder: "/assets/img/blog"
+
+collections:
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Category", name: "category", widget: "select", options: ["ppc", "seo", "eu", "tutorial"] }
+      - { label: "Featured Image", name: "image", widget: "image" }
+      - { label: "Read Time", name: "readTime", widget: "string", default: "5 min read" }
+      - { label: "Excerpt", name: "excerpt", widget: "text" }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "Pages"
+    files:
+      - label: "Homepage"
+        name: "home"
+        file: "content/home.json"
+        fields:
+          - label: "Hero Headline", name: "heroTitle", widget: "string"
+          - label: "Hero Subheadline", name: "heroSub", widget: "text"
+          - label: "About Bio", name: "aboutBio", widget: "markdown"
