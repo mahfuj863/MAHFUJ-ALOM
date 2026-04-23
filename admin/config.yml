@@ -1,12 +1,13 @@
 backend:
   name: github
-  repo: https://mahfuj863.github.io/MAHFUJ-ALOM/ 
+  repo: mahfuj863.github.io/MAHFUJ-ALOM
   branch: main
 
 media_folder: "images"
 public_folder: "/images"
 
 collections:
+  # Section to edit your Home Page content
   - name: "pages"
     label: "Pages"
     files:
@@ -14,4 +15,21 @@ collections:
         label: "Home Page"
         name: "home"
         fields:
-          - { label: "Content", name: "body", widget: "markdown" }
+          - { label: "Hero Title", name: "hero_title", widget: "string" }
+          - { label: "Hero Subtitle", name: "hero_subtitle", widget: "text" }
+          - { label: "About Content", name: "body", widget: "markdown" }
+
+  # Section to manage your Blog Posts & Tutorials
+  - name: "blog"
+    label: "Blog & Tutorials"
+    folder: "content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime" }
+      - { label: "Category", name: "category", widget: "select", options: ["ppc", "seo", "eu", "tutorial"] }
+      - { label: "Featured Image URL", name: "image", widget: "string" }
+      - { label: "Read Time", name: "readTime", widget: "string", default: "5 min read" }
+      - { label: "Excerpt", name: "excerpt", widget: "text" }
+      - { label: "Body Content", name: "body", widget: "markdown" }
