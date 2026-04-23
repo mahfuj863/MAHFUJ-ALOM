@@ -1,0 +1,17 @@
+backend:
+  name: github
+  repo: YOUR_USERNAME/YOUR_REPO # Replace with your actual username/repo name (e.g., mahfuz863/my-portfolio)
+  branch: main
+
+media_folder: "images"
+public_folder: "/images"
+
+collections:
+  - name: "pages"
+    label: "Pages"
+    files:
+      - file: "index.html"
+        label: "Home Page"
+        name: "home"
+        fields:
+          - { label: "Content", name: "body", widget: "markdown" }
