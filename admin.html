@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAM SCALEVIO | Advanced Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #7C3AED;
+            --bg: #0B0118;
+            --card: #15052b;
+            --border: rgba(255,255,255,0.1);
+            --text: #F3F4F6;
+            --text-dim: #9CA3AF;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* LOGIN */
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .login-card {
+            background: var(--card);
+            padding: 50px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h1 { font-family: 'Sora'; margin-bottom: 30px; }
+        .login-card input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            box-sizing: border-box;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 280px;
+            background: #080111;
+            border-right: 1px solid var(--border);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .logo { font-family: 'Sora'; font-weight: 800; font-size: 1.2rem; margin-bottom: 40px; padding: 0 10px; }
+        .nav-item {
+            padding: 15px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-dim);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main {
+            flex-grow: 1;
+            padding: 60px;
+            overflow-y: auto;
+        }
+        .section-header { margin-bottom: 40px; }
+        .section-header h2 { font-family: 'Sora'; font-size: 2rem; margin-bottom: 10px; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.9rem; }
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+        
+        /* POST LIST */
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+        .post-info h4 { margin: 0 0 5px 0; }
+        .post-info span { font-size: 0.8rem; color: var(--text-dim); }
+        .actions { display: flex; gap: 10px; }
+        .btn-small { padding: 8px 16px; border-radius: 8px; font-size: 0.8rem; }
+        .btn-delete { background: #ef4444; }
+
+        /* OUTPUT BOX */
+        #outputWrapper {
+            display: none;
+            margin-top: 40px;
+        }
+        pre {
+            background: #000;
+            padding: 30px;
+            border-radius: 20px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            border: 1px solid var(--primary);
+        }
+        .copy-banner {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid var(--primary);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loginOverlay">
+        <div class="login-card">
+            <h1>Admin Login</h1>
+            <input type="password" id="adminPass" placeholder="Enter dashboard password">
+            <button class="btn" onclick="login()">Enter Dashboard</button>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo">MAM <span style="color:var(--primary)">ADMIN</span></div>
+        <div class="nav-item active" onclick="showTab('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
+        <div class="nav-item" onclick="showTab('content')"><i class="fas fa-edit"></i> Frontend Editor</div>
+        <div class="nav-item" onclick="showTab('blog')"><i class="fas fa-newspaper"></i> Blog Manager</div>
+        <div class="nav-item" onclick="showTab('export')"><i class="fas fa-file-export"></i> Export Data</div>
+    </div>
+
+    <div class="main">
+        
+        <!-- DASHBOARD TAB -->
+        <div id="tab-dashboard" class="tab-content">
+            <div class="section-header">
+                <h2>Dashboard Overview</h2>
+                <p>Manage your MAM SCALEVIO portfolio content from here.</p>
+            </div>
+            <div class="grid">
+                <div class="card">
+                    <h3>Quick Actions</h3>
+                    <p>Easily update your bio or add new case studies to keep your portfolio fresh.</p>
+                    <button class="btn" onclick="showTab('content')" style="margin-top:20px">Start Editing</button>
+                </div>
+                <div class="card">
+                    <h3>System Status</h3>
+                    <p>Static Deployment: <strong>Active</strong></p>
+                    <p>Local Storage: <span id="storageSize">Calculating...</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT EDITOR TAB -->
+        <div id="tab-content" class="tab-content hidden">
+            <div class="section-header">
+                <h2>Frontend Editor</h2>
+                <p>Update section titles, descriptions, and images.</p>
+            </div>
+            <div class="card">
+                <h3>Hero Section</h3>
+                <div class="form-group">
+                    <label>Main Headline</label>
+                    <input type="text" id="heroTitle" value="Scaling Amazon Brands Globally. Intelligently.">
+                </div>
+                <div class="form-group">
+                    <label>Subheadline</label>
+                    <textarea id="heroSub" rows="3">Hi, I'm Mahfuj Alom Muhit — founder of MAM SCALEVIO. I manage, optimize & scale Amazon accounts across EU & global markets.</textarea>
+                </div>
+            </div>
+            <div class="card">
+                <h3>About Section</h3>
+                <div class="form-group">
+                    <label>About Description (Para 1)</label>
+                    <textarea id="aboutDesc1" rows="3">I am an Amazon FBA Virtual Assistant and E-Commerce Executive with proven, hands-on experience managing Amazon Seller Central accounts across EU and global markets.</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Profile Picture Path</label>
+                    <input type="text" id="profilePic" value="mahfuj pic trns.png">
+                </div>
+            </div>
+            <button class="btn" onclick="saveContent()">Save Changes Locally</button>
+        </div>
+
+        <!-- BLOG MANAGER TAB -->
+        <div id="tab-blog" class="tab-content hidden">
+            <div class="section-header">
+                <h2>Blog Manager</h2>
+                <p>Upload tutorials, guides, and e-commerce news.</p>
+            </div>
+            <div class="card">
+                <h3>Create New Post</h3>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="pTitle" placeholder="e.g. How to scale to 7 figures">
+                </div>
+                <div class="grid">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="pCat">
+                            <option value="ppc">Amazon PPC</option>
+                            <option value="seo">Listing SEO</option>
+                            <option value="eu">EU Markets</option>
+                            <option value="tutorial">Tutorials</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Read Time</label>
+                        <input type="text" id="pRead" placeholder="5 min read">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Excerpt</label>
+                    <textarea id="pExcerpt" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image Upload or URL</label>
+                    <input type="file" id="pImageUpload" accept="image/*" onchange="encodeImageFileAsURL(this)" style="margin-bottom: 10px;">
+                    <input type="text" id="pImage" placeholder="Or paste image URL (https://...)">
+                </div>
+                <button class="btn" onclick="addPost()">Add Post to List</button>
+            </div>
+            
+            <div class="card">
+                <h3>Existing Posts</h3>
+                <div id="postList">
+                    <!-- Posts go here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- EXPORT TAB -->
+        <div id="tab-export" class="tab-content hidden">
+            <div class="section-header">
+                <h2>Export & Deploy</h2>
+                <p>Copy this data into your project files to make changes permanent.</p>
+            </div>
+            <div class="copy-banner">
+                <div>
+                    <strong>Ready to deploy?</strong>
+                    <p style="margin:5px 0 0 0; font-size:0.85rem; color:var(--text-dim)">Copy the code below and paste it into your <code>blog.js</code> file.</p>
+                </div>
+                <button class="btn btn-small" onclick="copyCode()">Copy to Clipboard</button>
+            </div>
+            <pre id="finalExport"></pre>
+        </div>
+
+    </div>
+
+    <script>
+        // PASSWORD PROTECTION
+        function login() {
+            const pass = document.getElementById('adminPass').value;
+            if (pass === 'mahfuj863') {
+                document.getElementById('loginOverlay').style.display = 'none';
+            } else {
+                alert('Access Denied');
+            }
+        }
+
+        // NAVIGATION
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+
+            if (tabId === 'export') generateFullExport();
+        }
+
+        // DATA PERSISTENCE (Browser LocalStorage)
+        let posts = JSON.parse(localStorage.getItem('mam_posts')) || [
+            {
+                id: 1,
+                title: "How to Optimize Your Amazon PPC in 2025",
+                excerpt: "Discover the latest strategies for lowering ACOS and increasing your conversion rates through advanced campaign structures.",
+                category: "ppc",
+                image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop",
+                date: "April 15, 2025",
+                readTime: "6 min read"
+            },
+            {
+                id: 2,
+                title: "Mastering the EU Marketplace: DE, IT, ES, FR",
+                excerpt: "A complete guide to navigating VAT, localization, and compliance when expanding your brand across European territories.",
+                category: "eu",
+                image: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=800&auto=format&fit=crop",
+                date: "April 10, 2025",
+                readTime: "8 min read"
+            }
+        ];
+
+        function renderPostList() {
+            const list = document.getElementById('postList');
+            list.innerHTML = posts.map(p => `
+                <div class="post-item">
+                    <div class="post-info">
+                        <h4>${p.title}</h4>
+                        <span>${p.category.toUpperCase()} · ${p.date}</span>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-small btn-delete" onclick="deletePost(${p.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            localStorage.setItem('mam_posts', JSON.stringify(posts));
+        }
+
+        function addPost() {
+            const newPost = {
+                id: Date.now(),
+                title: document.getElementById('pTitle').value,
+                excerpt: document.getElementById('pExcerpt').value,
+                category: document.getElementById('pCat').value,
+                image: document.getElementById('pImage').value || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop',
+                date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
+                readTime: document.getElementById('pRead').value || "5 min read"
+            };
+            posts.unshift(newPost);
+            renderPostList();
+            alert('Post added! It is now live directly on your frontpage (News section).');
+        }
+
+        function encodeImageFileAsURL(element) {
+            var file = element.files[0];
+            var reader = new FileReader();
+            reader.onloadend = function() {
+                document.getElementById('pImage').value = reader.result;
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function deletePost(id) {
+            if(confirm('Delete this post?')) {
+                posts = posts.filter(p => p.id !== id);
+                renderPostList();
+            }
+        }
+
+        function generateFullExport() {
+            const code = `// ===== BLOG DATA & RENDERING =====
+const blogPosts = ${JSON.stringify(posts, null, 4)};
+
+window.renderBlogs = (filter = 'all', search = '') => {
+    const blogGrid = document.getElementById('blogGrid');
+    if (!blogGrid) return;
+
+    let filtered = blogPosts;
+
+    if (filter !== 'all') {
+        filtered = filtered.filter(post => post.category === filter);
+    }
+
+    if (search) {
+        const s = search.toLowerCase();
+        filtered = filtered.filter(post => 
+            post.title.toLowerCase().includes(s) || 
+            post.excerpt.toLowerCase().includes(s)
+        );
+    }
+
+    if (filtered.length === 0) {
+        blogGrid.innerHTML = \`<div class="no-results">No articles found matching your criteria.</div>\`;
+        return;
+    }
+
+    blogGrid.innerHTML = filtered.map(post => \`
+        <article class="blog-card">
+            <div class="blog-img-box">
+                <img src="\${post.image}" alt="\${post.title}">
+                <span class="blog-category">\${post.category.toUpperCase()}</span>
+            </div>
+            <div class="blog-card-body">
+                <h3>\${post.title}</h3>
+                <p>\${post.excerpt}</p>
+                <div class="blog-card-footer">
+                    <span>\${post.date}</span>
+                    <span>\${post.readTime}</span>
+                </div>
+            </div>
+        </article>
+    \`).join('');
+};`;
+            document.getElementById('finalExport').innerText = code;
+        }
+
+        function copyCode() {
+            const text = document.getElementById('finalExport').innerText;
+            navigator.clipboard.writeText(text).then(() => alert('Code copied! Paste it into blog.js.'));
+        }
+
+        // Init
+        renderPostList();
+        document.getElementById('storageSize').innerText = (JSON.stringify(localStorage).length / 1024).toFixed(2) + ' KB';
+
+    </script>
+</body>
+</html>
